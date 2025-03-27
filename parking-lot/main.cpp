@@ -17,6 +17,10 @@ public:
     {
         return size;
     }
+    string getlicensePlate()
+    {
+        return licensePlate;
+    }
 };
 
 class ParkingSpots
@@ -46,6 +50,11 @@ public:
     {
         this->parkedVehicle = vehicle;
         this->isOccupied = true;
+    }
+    void removeVehicle(Vehicle *vehicle)
+    {
+        this->parkedVehicle = NULL;
+        this->isOccupied = false;
     }
 };
 class ParkingFloor
@@ -91,6 +100,7 @@ class ParkingLot
 {
 private:
     vector<ParkingFloor> floors;
+    unordered_map<string, ParkingSpots *> parkedVehicles;
 
 public:
     ParkingLot(int numFloors, int small, int medium, int large)
@@ -108,17 +118,38 @@ public:
             if (spot)
             {
                 spot->parkVehicle(vehicle);
+                parkedVehicles[vehicle->getlicensePlate()] = spot;
                 cout << "Your Vehicle Parked Successfully" << endl;
                 return;
             }
         }
         cout << "Sorry no vacant spots" << endl;
     }
+    void removeVehicle(Vehicle *vehicle)
+    {
+        string plate = vehicle->getlicensePlate();
+        if (parkedVehicles.find(plate) != parkedVehicles.end())
+        {
+            ParkingSpots *spot = parkedVehicles[plate];
+            spot->removeVehicle(vehicle);
+            parkedVehicles.erase(plate);
+            cout << "Your vehicle successfully exited" << endl;
+        }
+        else
+        {
+            cout << "No such vehicle is present in parking lot" << endl;
+        }
+    }
 };
 int main()
 {
     ParkingLot lot(2, 2, 2, 2);
     Vehicle *car1 = new Vehicle("HR-36-1234", "LARGE");
+    Vehicle *car2 = new Vehicle("HR-36-1233", "LARGE");
+
     lot.parkVehicle(car1);
+    lot.removeVehicle(car1);
+    lot.removeVehicle(car2);
+
     delete car1;
 }
