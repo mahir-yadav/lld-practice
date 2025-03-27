@@ -4,4 +4,12 @@
 3.Each parking spot should be able to accommodate a specific type of vehicle.<br />
 4.The system should assign a parking spot to a vehicle upon entry and release it when the vehicle exits.<br />
 5.The system should track the availability of parking spots and provide real-time information to customers.<br />
-6.The system should handle multiple entry and exit points and support concurrent access.
+6.The system should handle multiple entry and exit points and support concurrent access.<br/>
+# what to do next
+1.types of vehicles and also color of vehicle.<br/>
+2.display info of parking spots which are available.<br/>
+3.if bike then we can place it in all sizes of spots but in truck only large this thing too.<br/>
+4.use enum and make seprate files for each class.<br/>
+5.threads if possible.<br/>
+6.add and identify oops concept and design patterns<br/>
+
