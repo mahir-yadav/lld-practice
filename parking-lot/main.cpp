@@ -93,13 +93,36 @@ public:
     {
         this->parkedVehicle = NULL;
     }
+    string VehicleSizeToString(VehicleSize size)
+    {
+        if (size == VehicleSize::SMALL)
+            return "SMALL";
+        else if (size == VehicleSize::MEDIUM)
+            return "MEDIUM";
+        else if (size == VehicleSize::LARGE)
+            return "LARGE";
+        else
+            return "ERROR";
+    }
+    void display()
+    {
+        cout << "Spot Id: " << spotID << " Spot Size: " << VehicleSizeToString(spotSize) << endl;
+        if (isAvailable())
+        {
+            cout << "Available" << endl;
+        }
+        else
+        {
+            cout << "Not Available " << parkedVehicle->getlicensePlate() << " has parked" << endl;
+        }
+    }
 };
 class ParkingFloor
 {
 private:
     int floorNumber;
     vector<ParkingSpots> spots;
-    void addSpots(int id, int cnt, VehicleSize size)
+    void addSpots(int &id, int cnt, VehicleSize size)
     {
         for (int i = 0; i < cnt; i++)
         {
@@ -109,10 +132,9 @@ private:
     }
 
 public:
-    ParkingFloor(int num, int small, int medium, int large)
+    ParkingFloor(int num, int &id, int small, int medium, int large)
     {
         this->floorNumber = num;
-        int id = 0;
         addSpots(id, small, VehicleSize::SMALL);
         addSpots(id, medium, VehicleSize::MEDIUM);
         addSpots(id, large, VehicleSize::LARGE);
@@ -128,6 +150,15 @@ public:
         }
         return NULL;
     }
+    void display()
+    {
+        cout << "Floor number is " << floorNumber << endl;
+        cout << "Spots available are " << endl;
+        for (auto &it : spots)
+        {
+            it.display();
+        }
+    }
 };
 class ParkingLot
 {
@@ -138,9 +169,10 @@ private:
 public:
     ParkingLot(int numFloors, int small, int medium, int large)
     {
-        for (int i = 0; i < numFloors; i++)
+        int id = 1;
+        for (int i = 1; i <= numFloors; i++)
         {
-            floors.push_back(ParkingFloor(i, small, medium, large));
+            floors.push_back(ParkingFloor(i, id, small, medium, large));
         }
     }
     void parkVehicle(Vehicle *vehicle)
@@ -173,17 +205,42 @@ public:
             cout << "No such vehicle is present in parking lot" << endl;
         }
     }
+    void display()
+    {
+        for (auto &it : floors)
+        {
+            it.display();
+            cout << "-----------------" << endl;
+        }
+    }
 };
 int main()
 {
-    ParkingLot lot(2, 2, 2, 0);
+    ParkingLot lot(2, 2, 1, 1);
     Vehicle *car1 = new Car("1234");
     Vehicle *truck1 = new Truck("1233");
+    Vehicle *bike1 = new Bike("1235");
+    Vehicle *bike2 = new Bike("1236");
+    Vehicle *bike3 = new Bike("1240");
+    Vehicle *bike4 = new Bike("1244");
+    Vehicle *car2 = new Car("1237");
 
+    // lot.display();
     lot.parkVehicle(car1);
     lot.removeVehicle(car1);
+    lot.parkVehicle(bike1);
+    lot.parkVehicle(bike2);
+    lot.parkVehicle(bike3);
+    lot.parkVehicle(bike4);
+    lot.parkVehicle(car2);
     lot.parkVehicle(truck1);
 
+    lot.display();
     delete car1;
+    delete car2;
+    delete bike1;
+    delete bike2;
+    delete bike3;
+    delete bike4;
     delete truck1;
 }
