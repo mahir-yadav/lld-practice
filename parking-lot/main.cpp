@@ -1,19 +1,24 @@
 #include <bits/stdc++.h>
 using namespace std;
-
+enum class VehicleSize
+{
+    SMALL,
+    MEDIUM,
+    LARGE
+};
 class Vehicle
 {
 private:
     string licensePlate;
-    string size;
+    VehicleSize size;
 
 public:
-    Vehicle(string plate, string size)
+    Vehicle(string plate, VehicleSize size)
     {
         this->licensePlate = plate;
         this->size = size;
     }
-    string getSize()
+    VehicleSize getSize()
     {
         return size;
     }
@@ -27,20 +32,19 @@ class ParkingSpots
 {
 private:
     int spotID;
-    string spotSize;
-    bool isOccupied;
+    VehicleSize spotSize;
     Vehicle *parkedVehicle;
 
 public:
-    ParkingSpots(int id, string size)
+    ParkingSpots(int id, VehicleSize size)
     {
         this->spotID = id;
         this->spotSize = size;
-        this->isOccupied = false;
+        this->parkedVehicle = NULL;
     }
     bool isAvailable()
     {
-        return !isOccupied;
+        return parkedVehicle == NULL;
     }
     bool canFitVehicle(Vehicle *vehicle)
     {
@@ -49,12 +53,10 @@ public:
     void parkVehicle(Vehicle *vehicle)
     {
         this->parkedVehicle = vehicle;
-        this->isOccupied = true;
     }
     void removeVehicle(Vehicle *vehicle)
     {
         this->parkedVehicle = NULL;
-        this->isOccupied = false;
     }
 };
 class ParkingFloor
@@ -62,27 +64,23 @@ class ParkingFloor
 private:
     int floorNumber;
     vector<ParkingSpots> spots;
+    void addSpots(int id, int cnt, VehicleSize size)
+    {
+        for (int i = 0; i < cnt; i++)
+        {
+            spots.push_back(ParkingSpots(id, size));
+            id++;
+        }
+    }
 
 public:
     ParkingFloor(int num, int small, int medium, int large)
     {
         this->floorNumber = num;
         int id = 0;
-        for (int i = 0; i < small; i++)
-        {
-            spots.push_back(ParkingSpots(id, "SMALL"));
-            id++;
-        }
-        for (int i = 0; i < medium; i++)
-        {
-            spots.push_back(ParkingSpots(id, "MEDIUM"));
-            id++;
-        }
-        for (int i = 0; i < large; i++)
-        {
-            spots.push_back(ParkingSpots(id, "LARGE"));
-            id++;
-        }
+        addSpots(id, small, VehicleSize::SMALL);
+        addSpots(id, medium, VehicleSize::MEDIUM);
+        addSpots(id, large, VehicleSize::LARGE);
     }
     ParkingSpots *findSpot(Vehicle *vehicle)
     {
@@ -144,8 +142,8 @@ public:
 int main()
 {
     ParkingLot lot(2, 2, 2, 2);
-    Vehicle *car1 = new Vehicle("HR-36-1234", "LARGE");
-    Vehicle *car2 = new Vehicle("HR-36-1233", "LARGE");
+    Vehicle *car1 = new Vehicle("1234", VehicleSize::LARGE);
+    Vehicle *car2 = new Vehicle("1233", VehicleSize::LARGE);
 
     lot.parkVehicle(car1);
     lot.removeVehicle(car1);
