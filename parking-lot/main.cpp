@@ -13,6 +13,7 @@ private:
     VehicleSize size;
 
 public:
+    Vehicle() {}
     Vehicle(string plate, VehicleSize size)
     {
         this->licensePlate = plate;
@@ -26,8 +27,42 @@ public:
     {
         return licensePlate;
     }
+    void setLicensePlate(string plate)
+    {
+        this->licensePlate = plate;
+    }
+    void setSize(VehicleSize size)
+    {
+        this->size = size;
+    }
 };
-
+class Car : public Vehicle
+{
+public:
+    Car(string plate)
+    {
+        this->setLicensePlate(plate);
+        this->setSize(VehicleSize::MEDIUM);
+    }
+};
+class Bike : public Vehicle
+{
+public:
+    Bike(string plate)
+    {
+        this->setLicensePlate(plate);
+        this->setSize(VehicleSize::SMALL);
+    }
+};
+class Truck : public Vehicle
+{
+public:
+    Truck(string plate)
+    {
+        this->setLicensePlate(plate);
+        this->setSize(VehicleSize::LARGE);
+    }
+};
 class ParkingSpots
 {
 private:
@@ -48,7 +83,7 @@ public:
     }
     bool canFitVehicle(Vehicle *vehicle)
     {
-        return vehicle->getSize() == this->spotSize;
+        return vehicle->getSize() <= this->spotSize;
     }
     void parkVehicle(Vehicle *vehicle)
     {
@@ -141,13 +176,14 @@ public:
 };
 int main()
 {
-    ParkingLot lot(2, 2, 2, 2);
-    Vehicle *car1 = new Vehicle("1234", VehicleSize::LARGE);
-    Vehicle *car2 = new Vehicle("1233", VehicleSize::LARGE);
+    ParkingLot lot(2, 2, 2, 0);
+    Vehicle *car1 = new Car("1234");
+    Vehicle *truck1 = new Truck("1233");
 
     lot.parkVehicle(car1);
     lot.removeVehicle(car1);
-    lot.removeVehicle(car2);
+    lot.parkVehicle(truck1);
 
     delete car1;
+    delete truck1;
 }
