@@ -6,6 +6,7 @@ enum class VehicleSize
     MEDIUM,
     LARGE
 };
+
 class Vehicle
 {
 private:
@@ -35,6 +36,7 @@ public:
     {
         this->size = size;
     }
+    virtual string getType() = 0;
 };
 class Car : public Vehicle
 {
@@ -43,6 +45,10 @@ public:
     {
         this->setLicensePlate(plate);
         this->setSize(VehicleSize::MEDIUM);
+    }
+    string getType() override
+    {
+        return "Car";
     }
 };
 class Bike : public Vehicle
@@ -53,6 +59,10 @@ public:
         this->setLicensePlate(plate);
         this->setSize(VehicleSize::SMALL);
     }
+    string getType() override
+    {
+        return "Bike";
+    }
 };
 class Truck : public Vehicle
 {
@@ -61,6 +71,10 @@ public:
     {
         this->setLicensePlate(plate);
         this->setSize(VehicleSize::LARGE);
+    }
+    string getType() override
+    {
+        return "Truck";
     }
 };
 class ParkingSpots
@@ -76,6 +90,13 @@ public:
         this->spotID = id;
         this->spotSize = size;
         this->parkedVehicle = NULL;
+    }
+    ~ParkingSpots()
+    {
+        if (parkedVehicle)
+        {
+            delete parkedVehicle;
+        }
     }
     bool isAvailable()
     {
@@ -106,15 +127,20 @@ public:
     }
     void display()
     {
-        cout << "Spot Id: " << spotID << " Spot Size: " << VehicleSizeToString(spotSize) << endl;
+
+        cout << "Spot Id: " << spotID << "( Spot Size: " << VehicleSizeToString(spotSize) << " ) ";
         if (isAvailable())
         {
-            cout << "Available" << endl;
+            cout << "[ Available ]" << endl;
         }
         else
         {
-            cout << "Not Available " << parkedVehicle->getlicensePlate() << " has parked" << endl;
+            cout << "[Occupied by [" << parkedVehicle->getType() + " , " + parkedVehicle->getlicensePlate() << "] ]" << endl;
         }
+    }
+    Vehicle *getParkedVehicle()
+    {
+        return parkedVehicle;
     }
 };
 class ParkingFloor
@@ -152,12 +178,25 @@ public:
     }
     void display()
     {
-        cout << "Floor number is " << floorNumber << endl;
-        cout << "Spots available are " << endl;
+        cout << "Floor number : " << floorNumber << endl;
         for (auto &it : spots)
         {
             it.display();
         }
+    }
+};
+class VehicleFactory
+{
+public:
+    static Vehicle *createVehicle(string type, string plate)
+    {
+        if (type == "Car")
+            return new Car(plate);
+        if (type == "Bike")
+            return new Bike(plate);
+        if (type == "Truck")
+            return new Truck(plate);
+        throw invalid_argument("Unknown invalid argument: " + type);
     }
 };
 class ParkingLot
@@ -175,8 +214,17 @@ public:
             floors.push_back(ParkingFloor(i, id, small, medium, large));
         }
     }
-    void parkVehicle(Vehicle *vehicle)
+    // ~ParkingLot()
+    // {
+    //     for (auto &it : parkedVehicles)
+    //     {
+    //         it->removeVehicle();
+    //     }
+    //     parkedVehicles.clear();
+    // }
+    void parkVehicle(string type, string plate)
     {
+        Vehicle *vehicle = VehicleFactory::createVehicle(type, plate);
         for (auto &floor : floors)
         {
             ParkingSpots *spot = floor.findSpot(vehicle);
@@ -184,25 +232,27 @@ public:
             {
                 spot->parkVehicle(vehicle);
                 parkedVehicles[vehicle->getlicensePlate()] = spot;
-                cout << "Your Vehicle Parked Successfully" << endl;
+                cout << vehicle->getType() << " [" << vehicle->getlicensePlate() << "] " << " Parked Successfully" << endl;
                 return;
             }
         }
         cout << "Sorry no vacant spots" << endl;
+        delete vehicle;
     }
-    void removeVehicle(Vehicle *vehicle)
+    void removeVehicle(string plate)
     {
-        string plate = vehicle->getlicensePlate();
+
         if (parkedVehicles.find(plate) != parkedVehicles.end())
         {
             ParkingSpots *spot = parkedVehicles[plate];
+            Vehicle *vehicle = spot->getParkedVehicle();
             spot->removeVehicle(vehicle);
             parkedVehicles.erase(plate);
-            cout << "Your vehicle successfully exited" << endl;
+            cout << vehicle->getType() << " [" << vehicle->getlicensePlate() << "] " << " successfully exited" << endl;
         }
         else
         {
-            cout << "No such vehicle is present in parking lot" << endl;
+            cout << " [" << plate << "] " << "is not present in parking lot" << endl;
         }
     }
     void display()
@@ -217,30 +267,34 @@ public:
 int main()
 {
     ParkingLot lot(2, 2, 1, 1);
-    Vehicle *car1 = new Car("1234");
-    Vehicle *truck1 = new Truck("1233");
-    Vehicle *bike1 = new Bike("1235");
-    Vehicle *bike2 = new Bike("1236");
-    Vehicle *bike3 = new Bike("1240");
-    Vehicle *bike4 = new Bike("1244");
-    Vehicle *car2 = new Car("1237");
 
     // lot.display();
-    lot.parkVehicle(car1);
-    lot.removeVehicle(car1);
-    lot.parkVehicle(bike1);
-    lot.parkVehicle(bike2);
-    lot.parkVehicle(bike3);
-    lot.parkVehicle(bike4);
-    lot.parkVehicle(car2);
-    lot.parkVehicle(truck1);
+    lot.parkVehicle("Car", "1234");
+    lot.removeVehicle("1234");
+    lot.parkVehicle("Bike", "1235");
+    lot.parkVehicle("Bike", "1236");
+    lot.parkVehicle("Bike", "1240");
+    lot.parkVehicle("Bike", "1244");
+    lot.parkVehicle("Car", "1237");
+    lot.parkVehicle("Truck", "1233");
+    lot.removeVehicle("1244");
 
     lot.display();
-    delete car1;
-    delete car2;
-    delete bike1;
-    delete bike2;
-    delete bike3;
-    delete bike4;
-    delete truck1;
 }
+
+// OOPS Concepts
+//  1.Encapsulation
+//  In vehicle class size and license plate are private and provided public methods to access them.
+//  2.Inheritance
+//  car,bike,truck inherit from vehicle class
+//  3.polymorphism
+// getType() override in car,truck,bike
+// 4.Abstraction
+//  parkvehicle and removevehicle functions
+
+// Design Pattern
+//  1.Factory
+//  instead of creating manually
+//  Vehicle *car1 = new Car("1234");
+//  Vehicle *truck1 = new Truck("1233");
+//  we can do vehicle *car=VehicleFactory::createVehicle("Car","1234")
