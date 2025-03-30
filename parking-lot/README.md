@@ -6,10 +6,5 @@
 5.The system should track the availability of parking spots and provide real-time information to customers.<br />
 6.The system should handle multiple entry and exit points and support concurrent access.<br/>
 # what to do next
-1.types of vehicles and also color of vehicle.<br/>
-2.display info of parking spots which are available.<br/>
-3.if bike then we can place it in all sizes of spots but in truck only large this thing too.<br/>
-4.use enum and make seprate files for each class.<br/>
-5.threads if possible.<br/>
-6.add and identify oops concept and design patterns<br/>
+done 
 
