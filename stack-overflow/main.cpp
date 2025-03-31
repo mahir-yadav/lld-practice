@@ -21,6 +21,7 @@ using namespace std;
 // Stackoverflow
 //
 class Answer;
+class Comment;
 class User
 {
 private:
@@ -45,7 +46,7 @@ private:
     int id;
     string title, content;
     User *author;
-    // vector<Comment *> comments;
+    vector<Comment *> comments;
     vector<Answer *> answers;
     // vector<Tag *> tags;
     // vector<Vote *> votes;
@@ -78,6 +79,14 @@ public:
     {
         answers.push_back(answer);
     }
+    vector<Comment *> getComments()
+    {
+        return comments;
+    }
+    void addComment(Comment *comment)
+    {
+        comments.push_back(comment);
+    }
 };
 class Answer
 {
@@ -86,7 +95,7 @@ private:
     string content;
     User *author;
     Question *question;
-    // vector<Comment *> comments;
+    vector<Comment *> comments;
     // vector<int> votes;
 
 public:
@@ -109,18 +118,32 @@ public:
     {
         return content;
     }
+    vector<Comment *> getComments()
+    {
+        return comments;
+    }
+    void addComment(Comment *comment)
+    {
+        comments.push_back(comment);
+    }
 };
-// class Comment
-// {
-// private:
-//     int id;
-//     string content;
-//     User *author;
-//     Question *question;
-//     Answer *answer;
+class Comment
+{
+private:
+    int id;
+    string content;
+    User *author;
+    Question *question;
+    Answer *answer;
 
-// public:
-// };
+public:
+    Comment(int id, string content, User *author)
+    {
+        this->id = id;
+        this->content = content;
+        this->author = author;
+    }
+};
 // class Vote
 // {
 // private:
@@ -191,16 +214,53 @@ public:
         }
         cout << "No Question found with id: " << questionId << endl;
     }
+    void addCommentOnQuestion(User *author, int questionId, string content)
+    {
+        for (auto &question : questions)
+        {
+            if (question->getId() == questionId)
+            {
+                Comment *new_comment = new Comment(question->getComments().size() + 1, content, author);
+                question->addComment(new_comment);
+                cout << author->getName() << " commented on question: " << question->getTitle() << endl;
+                return;
+            }
+        }
+        cout << "No Question found with id: " << questionId << endl;
+    }
+    void addCommentOnAnswer(User *author, int questionId, int answerId, string content)
+    {
+        for (auto &question : questions)
+        {
+            if (question->getId() == questionId)
+            {
+                for (auto &answer : question->getAnswers())
+                {
+                    if (answer->getId() == answerId)
+                    {
+                        Comment *new_comment = new Comment(answer->getComments().size() + 1, content, author);
+                        answer->addComment(new_comment);
+                        cout << author->getName() << " commented on " << answer->getContent() << endl;
+                        return;
+                    }
+                }
+            }
+        }
+        cout << "No Answer found with id: " << answerId << " in " << questionId <<endl;
+    }
 };
 int main()
 {
     Stackoverflow st;
     User *user1 = new User(1, "luffy");
     User *user2 = new User(2, "hyogoro");
-
+    User *user3 = new User(3, "Captain kid");
     st.postQuestion(user1, "Advanced armament haki", "how to use it , i have seen rayleigh using it.");
     cout << "Show All Questions: " << endl;
     st.showAllQuestions();
     st.postAnswer(user2, 1, "just let your haki flow in your fist.");
     st.showAnswers(1);
+    st.addCommentOnQuestion(user3, 1, "Shut up you stupid monkey!");
+    st.addCommentOnAnswer(user1, 1, 1, "Thanks hyogoro!");
+
 }
