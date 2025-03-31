@@ -22,6 +22,7 @@ using namespace std;
 //
 class Answer;
 class Comment;
+class Vote;
 class User
 {
 private:
@@ -49,7 +50,7 @@ private:
     vector<Comment *> comments;
     vector<Answer *> answers;
     // vector<Tag *> tags;
-    // vector<Vote *> votes;
+    vector<Vote *> votes;
 
 public:
     Question(int id, User *author, string title, string content)
@@ -87,6 +88,10 @@ public:
     {
         comments.push_back(comment);
     }
+    void addVote(Vote *vote)
+    {
+        votes.push_back(vote);
+    }
 };
 class Answer
 {
@@ -96,7 +101,7 @@ private:
     User *author;
     Question *question;
     vector<Comment *> comments;
-    // vector<int> votes;
+    vector<Vote *> votes;
 
 public:
     Answer(int id, string content, User *author, Question *question)
@@ -126,6 +131,10 @@ public:
     {
         comments.push_back(comment);
     }
+    void addVote(Vote *vote)
+    {
+        votes.push_back(vote);
+    }
 };
 class Comment
 {
@@ -144,14 +153,27 @@ public:
         this->author = author;
     }
 };
-// class Vote
-// {
-// private:
-//     User *voter;
-//     bool isUpvote;
+class Vote
+{
+private:
+    User *voter;
+    bool isUpvote;
 
-// public:
-// };
+public:
+    Vote(User *voter, bool isUpvote)
+    {
+        this->voter = voter;
+        this->isUpvote = isUpvote;
+    }
+    User *getVoter()
+    {
+        return voter;
+    }
+    bool getIsUpVote()
+    {
+        return isUpvote;
+    }
+};
 // class Tag
 // {
 // private:
@@ -246,7 +268,47 @@ public:
                 }
             }
         }
-        cout << "No Answer found with id: " << answerId << " in " << questionId <<endl;
+        cout << "No Answer found with id: " << answerId << " in " << questionId << endl;
+    }
+    void upVoteOnQuestion(int questionId, User *voter, bool isupvote)
+    {
+        for (auto &question : questions)
+        {
+            if (question->getId() == questionId)
+            {
+                Vote *new_vote = new Vote(voter, isupvote);
+                question->addVote(new_vote);
+                if (isupvote)
+                    cout << voter->getName() << " upvoted on " << question->getTitle() << endl;
+                else
+                    cout << voter->getName() << " downvoted on " << question->getTitle() << endl;
+                return;
+            }
+        }
+        cout << "No Question found with id: " << questionId << endl;
+    }
+    void upVoteOnAnswer(int questionId, int answerId, User *voter, bool isupvote)
+    {
+        for (auto &question : questions)
+        {
+            if (question->getId() == questionId)
+            {
+                for (auto &answer : question->getAnswers())
+                {
+                    if (answer->getId() == answerId)
+                    {
+                        Vote *new_vote = new Vote(voter, isupvote);
+                        answer->addVote(new_vote);
+                        if (isupvote)
+                            cout << voter->getName() << " upvoted on " << answer->getContent() << endl;
+                        else
+                            cout << voter->getName() << " downvoted on " << answer->getContent() << endl;
+                        return;
+                    }
+                }
+            }
+        }
+        cout << "No Answer found with id: " << answerId << " in " << questionId << endl;
     }
 };
 int main()
@@ -255,6 +317,10 @@ int main()
     User *user1 = new User(1, "luffy");
     User *user2 = new User(2, "hyogoro");
     User *user3 = new User(3, "Captain kid");
+    User *user4 = new User(4, "Nami");
+    User *user5 = new User(5, "Zoro");
+    User *user6 = new User(6, "killer");
+
     st.postQuestion(user1, "Advanced armament haki", "how to use it , i have seen rayleigh using it.");
     cout << "Show All Questions: " << endl;
     st.showAllQuestions();
@@ -262,5 +328,7 @@ int main()
     st.showAnswers(1);
     st.addCommentOnQuestion(user3, 1, "Shut up you stupid monkey!");
     st.addCommentOnAnswer(user1, 1, 1, "Thanks hyogoro!");
-
+    st.upVoteOnQuestion(1, user4, 1);
+    st.upVoteOnQuestion(1, user5, 1);
+    st.upVoteOnAnswer(1, 1, user6, 1);
 }
