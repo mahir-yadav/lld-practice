@@ -23,6 +23,23 @@ using namespace std;
 class Answer;
 class Comment;
 class Vote;
+class Tag
+{
+private:
+    int id;
+    string name;
+
+public:
+    Tag(int id, string name)
+    {
+        this->id = id;
+        this->name = name;
+    }
+    string getName()
+    {
+        return name;
+    }
+};
 class User
 {
 private:
@@ -49,7 +66,7 @@ private:
     User *author;
     vector<Comment *> comments;
     vector<Answer *> answers;
-    // vector<Tag *> tags;
+    vector<Tag *> tags;
     vector<Vote *> votes;
 
 public:
@@ -91,6 +108,14 @@ public:
     void addVote(Vote *vote)
     {
         votes.push_back(vote);
+    }
+    void addTag(string name)
+    {
+        tags.push_back(new Tag(tags.size() + 1, name));
+    }
+    vector<Tag *> getTags()
+    {
+        return tags;
     }
 };
 class Answer
@@ -174,23 +199,22 @@ public:
         return isUpvote;
     }
 };
-// class Tag
-// {
-// private:
-//     int id;
-//     string name;
 
-// public:
-// };
 class Stackoverflow
 {
 private:
     vector<Question *> questions;
 
 public:
-    void postQuestion(User *author, string title, string content)
+    void postQuestion(User *author, string title, string content, vector<string> tags)
     {
-        questions.push_back(new Question(questions.size() + 1, author, title, content));
+        Question *new_question = new Question(questions.size() + 1, author, title, content);
+        questions.push_back(new_question);
+        for (auto name : tags)
+        {
+            new_question->addTag(name);
+        }
+
         cout << "Question posted: " << title << " by " << author->getName() << endl;
     }
     void showAllQuestions()
@@ -310,6 +334,46 @@ public:
         }
         cout << "No Answer found with id: " << answerId << " in " << questionId << endl;
     }
+    void searchQuestionBasedOnTag(string name)
+    {
+        bool flag = false;
+        int count = 1;
+        for (auto &question : questions)
+        {
+            vector<Tag *> tags = question->getTags();
+            for (auto &tag : tags)
+            {
+                if (tag->getName() == name)
+                {
+                    cout << count << ". " << question->getTitle() << " by " << question->getAuthor()->getName() << endl;
+                    flag = true;
+                    count += 1;
+                }
+            }
+        }
+        if (!flag)
+        {
+            cout << "No question found with such tag" << endl;
+        }
+    }
+    void searchQuestionBasedOnUser(string author)
+    {
+        bool flag = false;
+        int count = 1;
+        for (auto &question : questions)
+        {
+            if (question->getAuthor()->getName() == author)
+            {
+                cout << count << ". " << question->getTitle() << " by " << question->getAuthor()->getName() << endl;
+                flag = true;
+                count += 1;
+            }
+        }
+        if (!flag)
+        {
+            cout << "No question found with such tag" << endl;
+        }
+    }
 };
 int main()
 {
@@ -321,7 +385,7 @@ int main()
     User *user5 = new User(5, "Zoro");
     User *user6 = new User(6, "killer");
 
-    st.postQuestion(user1, "Advanced armament haki", "how to use it , i have seen rayleigh using it.");
+    st.postQuestion(user1, "Advanced armament haki", "how to use it , i have seen rayleigh using it.", {"One Piece", "Haki"});
     cout << "Show All Questions: " << endl;
     st.showAllQuestions();
     st.postAnswer(user2, 1, "just let your haki flow in your fist.");
@@ -331,4 +395,6 @@ int main()
     st.upVoteOnQuestion(1, user4, 1);
     st.upVoteOnQuestion(1, user5, 1);
     st.upVoteOnAnswer(1, 1, user6, 1);
+    st.searchQuestionBasedOnTag("One Piece");
+    st.searchQuestionBasedOnUser("luffy");
 }
